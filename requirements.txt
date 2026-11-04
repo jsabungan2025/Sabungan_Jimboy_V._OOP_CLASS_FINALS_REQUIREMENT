@@ -28,3 +28,4 @@ tornado==6.5.4
 traitlets==5.14.3
 wcwidth==0.4.0
 Werkzeug==3.1.8
+gunicorn
