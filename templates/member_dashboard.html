@@ -1,0 +1,377 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrgFinance | Member Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #0b1120;
+            color: #f8fafc;
+            font-family: Inter, Arial, sans-serif;
+        }
+
+        .container {
+            width: min(1150px, 92%);
+            margin: auto;
+            padding: 30px 0 45px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 35px;
+        }
+
+        .brand {
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .brand span {
+            color: #a78bfa;
+        }
+
+        .account {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #cbd5e1;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #172033;
+            color: white;
+            border: 1px solid #334155;
+            border-radius: 9px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            border-color: #8b5cf6;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            margin-bottom: 8px;
+            font-size: 32px;
+        }
+
+        .welcome p,
+        .card-label,
+        .description,
+        .allocation-label,
+        .progress-labels {
+            color: #94a3b8;
+        }
+
+        .welcome p {
+            line-height: 1.6;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 35px;
+        }
+
+        .card,
+        .project {
+            background: #111827;
+            border: 1px solid #273449;
+            border-radius: 16px;
+            padding: 23px;
+            min-width: 0;
+        }
+
+        .card-label {
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .card-value {
+            font-size: clamp(22px, 3vw, 30px);
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .remaining {
+            color: #34d399;
+        }
+
+        .allocated,
+        .allocation-value {
+            color: #c4b5fd;
+        }
+
+        .spent {
+            color: #fbbf24;
+        }
+
+        .section-title {
+            margin-bottom: 18px;
+            font-size: 22px;
+        }
+
+        .project-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .project h3 {
+            margin: 0 0 9px;
+            font-size: 18px;
+        }
+
+        .description {
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        .allocation {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .allocation-label {
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .allocation-value {
+            font-weight: 800;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 22px 0 9px;
+            font-size: 12px;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: #263247;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #7c3aed, #a78bfa);
+            border-radius: 20px;
+        }
+
+        .project-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .project-footer strong {
+            color: #34d399;
+        }
+
+        .empty {
+            background: #111827;
+            border: 1px dashed #334155;
+            border-radius: 15px;
+            padding: 35px;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        .empty strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #f8fafc;
+        }
+
+        footer {
+            margin-top: 35px;
+            color: #64748b;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        @media (max-width: 760px) {
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                align-items: flex-start;
+            }
+
+            .account {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 8px;
+            }
+
+            .project-header {
+                flex-direction: column;
+            }
+
+            .allocation {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+
+        <header class="header">
+            <div class="brand">
+                Org<span>Finance</span>
+            </div>
+
+            <div class="account">
+                <span>Welcome, {{ username }}</span>
+
+                <form action="{{ url_for('logout') }}" method="post">
+                    <button type="submit">Log out</button>
+                </form>
+            </div>
+        </header>
+
+        <section class="welcome">
+            <h1>Member Dashboard</h1>
+            <p>
+                View your organization's project budgets,
+                allocations, expenses, and remaining funds.
+                This dashboard is read-only.
+            </p>
+        </section>
+
+        <section class="summary">
+            <article class="card">
+                <div class="card-label">Budget Remaining</div>
+                <div class="card-value remaining">
+                    ₱{{ "{:,.2f}".format(remaining_budget) }}
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-label">Total Budget Allocated</div>
+                <div class="card-value allocated">
+                    ₱{{ "{:,.2f}".format(total_allocated) }}
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-label">Total Recorded Expenses</div>
+                <div class="card-value spent">
+                    ₱{{ "{:,.2f}".format(total_spent) }}
+                </div>
+            </article>
+        </section>
+
+        <section>
+            <h2 class="section-title">
+                Projects and Allocated Budgets
+            </h2>
+
+            {% if projects %}
+                <div class="project-list">
+                    {% for project in projects %}
+                        {% set allocated = project["allocated_budget"]|float %}
+                        {% set spent = project["spent_amount"]|float %}
+                        {% set remaining = allocated - spent %}
+
+                        {% if allocated > 0 %}
+                            {% set percent = spent / allocated * 100 %}
+                        {% else %}
+                            {% set percent = 0 %}
+                        {% endif %}
+
+                        {% set progress = [percent, 100]|min %}
+
+                        <article class="project">
+                            <div class="project-header">
+                                <div>
+                                    <h3>{{ project["name"] }}</h3>
+                                    <div class="description">{{ project["description"] or "No project description provided." }}</div>
+                                </div>
+
+                                <div class="allocation">
+                                    <div class="allocation-label">
+                                        Allocated Budget
+                                    </div>
+                                    <div class="allocation-value">
+                                        ₱{{ "{:,.2f}".format(allocated) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="progress-labels">
+                                <span>
+                                    Spent: ₱{{ "{:,.2f}".format(spent) }}
+                                </span>
+                                <span>
+                                    {{ "%.1f"|format(percent) }}% used
+                                </span>
+                            </div>
+
+                            <div class="progress-track">
+                                <div class="progress-bar"
+                                     style="width: {{ progress }}%;">
+                                </div>
+                            </div>
+
+                            <div class="project-footer">
+                                <span>Remaining for this project</span>
+                                <strong>
+                                    ₱{{ "{:,.2f}".format(remaining) }}
+                                </strong>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty">
+                    <strong>No project budgets available yet</strong>
+                    Project budgets will appear here after the Finance
+                    Officer adds them.
+                </div>
+            {% endif %}
+        </section>
+
+        <footer>
+            OrgFinance · Member access is view-only
+        </footer>
+
+    </main>
+</body>
+</html>

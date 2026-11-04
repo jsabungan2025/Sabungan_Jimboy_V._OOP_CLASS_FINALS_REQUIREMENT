@@ -1,0 +1,1341 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Head Admin | OrgFinance</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0b1120;
+            --surface: #111827;
+            --surface-light: #172033;
+            --surface-hover: #1e293b;
+            --border: #293548;
+            --text: #e2e8f0;
+            --heading: #f8fafc;
+            --muted: #94a3b8;
+            --purple: #8b5cf6;
+            --purple-light: #a78bfa;
+            --green: #4ade80;
+            --red: #f87171;
+            --blue: #60a5fa;
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Inter", sans-serif;
+            background:
+                radial-gradient(ellipse at top left, rgba(124, 58, 237, .13), transparent 35%),
+                radial-gradient(ellipse at top right, rgba(59, 130, 246, .08), transparent 30%),
+                var(--bg);
+            color: var(--text);
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        button, a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            width: min(100% - 40px, 1250px);
+            margin: auto;
+            padding: 32px 0 45px;
+        }
+
+        h1, h2, h3 {
+            color: var(--heading);
+            margin-top: 0;
+        }
+
+        h1 {
+            font-size: clamp(25px, 4vw, 34px);
+            letter-spacing: -1.2px;
+            margin-bottom: 9px;
+        }
+
+        h2 {
+            font-size: 18px;
+            letter-spacing: -.3px;
+            margin-bottom: 9px;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        /* HEADER AND LOGO */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 35px;
+            padding-bottom: 22px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .brand-logo {
+            display: block;
+            width: 55px;
+            height: 55px;
+            flex-shrink: 0;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .brand-text {
+            min-width: 0;
+        }
+
+        .brand-name {
+            color: var(--heading);
+            font-weight: 800;
+            font-size: 19px;
+            letter-spacing: -.6px;
+        }
+
+        .brand-subtitle {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 13px;
+            border: 1px solid rgba(167, 139, 250, .25);
+            background: rgba(124, 58, 237, .12);
+            color: var(--purple-light);
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .admin-badge::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--purple-light);
+        }
+
+        /* PAGE INTRO */
+
+        .page-intro {
+            margin-bottom: 27px;
+        }
+
+        .page-intro p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .eyebrow {
+            color: var(--purple-light);
+            text-transform: uppercase;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+
+        /* NAVIGATION */
+
+        .navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 25px 0 30px;
+        }
+
+        .navigation a {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface);
+            color: var(--text);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: .2s ease;
+        }
+
+        .navigation a:hover {
+            background: var(--surface-hover);
+            border-color: var(--purple);
+            color: var(--purple-light);
+            transform: translateY(-2px);
+        }
+
+        /* ANALYTICS CARDS */
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 17px;
+            margin-bottom: 23px;
+        }
+
+        .analytics-card {
+            position: relative;
+            overflow: hidden;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 23px;
+            transition: .2s ease;
+        }
+
+        .analytics-card:hover {
+            transform: translateY(-3px);
+            border-color: #475569;
+        }
+
+        .analytics-card::after {
+            content: "";
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            right: -40px;
+            bottom: -50px;
+            border-radius: 50%;
+            background: var(--card-glow, rgba(139, 92, 246, .12));
+        }
+
+        .analytics-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 19px;
+        }
+
+        .analytics-label {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .analytics-icon {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: var(--icon-bg, rgba(139, 92, 246, .13));
+            color: var(--icon-color, var(--purple-light));
+            font-size: 19px;
+        }
+
+        .amount {
+            color: var(--heading);
+            font-size: clamp(27px, 3vw, 34px);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .purple { color: var(--purple-light); }
+        .green { color: var(--green); }
+        .blue { color: var(--blue); }
+
+        /* GENERAL CARDS */
+
+        .card {
+            background: linear-gradient(145deg, #151f32, #111827);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
+        }
+
+        .card-heading {
+            margin-bottom: 23px;
+        }
+
+        .card-heading p {
+            color: var(--muted);
+            font-size: 13px;
+            margin: 0;
+        }
+
+        /* REGISTERED ACCOUNTS CHART */
+
+        .registration-layout {
+            display: grid;
+            grid-template-columns: minmax(240px, .9fr) minmax(300px, 1.1fr);
+            align-items: center;
+            gap: 35px;
+        }
+
+        .registration-chart {
+            position: relative;
+            width: 100%;
+            max-width: 340px;
+            height: 310px;
+            margin: auto;
+        }
+
+        .registration-chart canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .chart-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .chart-center strong {
+            display: block;
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--heading);
+            letter-spacing: -1px;
+        }
+
+        .chart-center span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .role-summary {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .role-item {
+            min-width: 0;
+            padding: 17px;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, .8);
+            border: 1px solid var(--border);
+            transition: .2s ease;
+        }
+
+        .role-item:hover {
+            border-color: #64748b;
+        }
+
+        .role-top {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 14px;
+        }
+
+        .role-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .role-name {
+            color: #cbd5e1;
+            font-size: 12px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+            text-transform: capitalize;
+        }
+
+        .role-count {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--heading);
+        }
+
+        .role-percentage {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .role-empty {
+            grid-column: 1 / -1;
+            color: var(--muted);
+            text-align: center;
+            padding: 30px;
+            background: var(--surface);
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+        }
+
+        /* PAGE VISITS CHART */
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* ACCOUNT FORM */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0 16px;
+        }
+
+        .form-group {
+            margin-bottom: 13px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            color: #cbd5e1;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 13px 14px;
+            margin: 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #0b1120;
+            color: var(--heading);
+            outline: none;
+            transition: .2s ease;
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, .13);
+        }
+
+        select option {
+            background: var(--surface);
+            color: var(--heading);
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 17px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        button:hover {
+            filter: brightness(1.12);
+            transform: translateY(-1px);
+        }
+
+        .primary-button {
+            width: 100%;
+            margin-top: 8px;
+            padding: 14px;
+        }
+
+        /* ASSISTANT ADMIN TABLE */
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 580px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        th {
+            background: rgba(15, 23, 42, .8);
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            font-weight: 700;
+        }
+
+        td {
+            color: var(--text);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, .025);
+        }
+
+        td form {
+            margin: 0;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        .active-status {
+            color: var(--green);
+        }
+
+        .active-status::before {
+            background: var(--green);
+        }
+
+        .inactive-status {
+            color: var(--red);
+        }
+
+        .inactive-status::before {
+            background: var(--red);
+        }
+
+        .remove-button {
+            width: auto;
+            padding: 9px 13px;
+            background: rgba(220, 38, 38, .14);
+            border: 1px solid rgba(248, 113, 113, .25);
+            color: #fca5a5;
+            font-size: 12px;
+        }
+
+        .remove-button:hover {
+            background: #b91c1c;
+            color: white;
+        }
+
+        /* INTERFACE MODE */
+
+        .mode-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .mode-card p {
+            margin-bottom: 0;
+            font-size: 13px;
+        }
+
+        .mode-button {
+            width: auto;
+            flex-shrink: 0;
+        }
+
+        .mode-label {
+            color: var(--purple-light);
+            text-transform: capitalize;
+            font-weight: 700;
+        }
+
+        /* FLASH MESSAGES */
+
+        .message {
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+
+        .success {
+            background: rgba(20, 83, 45, .3);
+            border-color: rgba(74, 222, 128, .25);
+            color: #86efac;
+        }
+
+        .error {
+            background: rgba(127, 29, 29, .3);
+            border-color: rgba(248, 113, 113, .25);
+            color: #fca5a5;
+        }
+
+        /* LOGOUT AND FOOTER */
+
+        .logout-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 28px;
+        }
+
+        .logout-button {
+            width: auto;
+            min-width: 125px;
+            background: rgba(220, 38, 38, .12);
+            color: #fca5a5;
+            border: 1px solid rgba(248, 113, 113, .25);
+        }
+
+        .logout-button:hover {
+            background: #b91c1c;
+            color: white;
+        }
+
+        .dashboard-footer {
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: #64748b;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 850px) {
+            .registration-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .registration-chart {
+                max-width: 330px;
+            }
+
+            .analytics-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .analytics-card:last-child {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: min(100% - 28px, 1250px);
+                padding-top: 20px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+            }
+
+            .brand-logo {
+                width: 46px;
+                height: 46px;
+            }
+
+            .brand {
+                gap: 10px;
+            }
+
+            .brand-name {
+                font-size: 17px;
+            }
+
+            .admin-badge {
+                font-size: 10px;
+                padding: 8px 10px;
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .analytics-card:last-child {
+                grid-column: auto;
+            }
+
+            .analytics-card {
+                padding: 19px;
+            }
+
+            .card {
+                padding: 19px;
+            }
+
+            .role-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+
+            .mode-card {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .mode-button {
+                width: 100%;
+            }
+
+            .logout-section,
+            .logout-section form,
+            .logout-button {
+                width: 100%;
+            }
+
+            .logout-button {
+                justify-content: center;
+            }
+
+            .navigation a {
+                flex: 1 1 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .role-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-badge {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <!-- HEADER WITH ORGFINANCE LOGO -->
+    <header class="topbar">
+
+        <div class="brand">
+
+            <img
+                src="{{ url_for('static', filename='images/orgfinance-logo.png') }}"
+                alt="OrgFinance Logo"
+                class="brand-logo"
+            >
+
+            <div class="brand-text">
+                <div class="brand-name">OrgFinance</div>
+                <div class="brand-subtitle">
+                    Financial Management System
+                </div>
+            </div>
+
+        </div>
+
+        <div class="admin-badge">
+            Head Administrator
+        </div>
+
+    </header>
+
+    <!-- PAGE INTRO -->
+    <section class="page-intro">
+        <div class="eyebrow">Administration Overview</div>
+
+        <h1>Head Admin Dashboard</h1>
+
+        <p>
+            Manage administrator accounts and monitor OrgFinance activity.
+        </p>
+    </section>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="message {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- NAVIGATION -->
+    <nav class="navigation">
+        <a href="{{ url_for('audit_log') }}">
+            ◷ &nbsp; View Audit Log
+        </a>
+
+        <a href="{{ url_for('transaction_history') }}">
+            ▤ &nbsp; Transaction History
+        </a>
+    </nav>
+
+    <!-- ANALYTICS SUMMARY -->
+    <section class="analytics-grid">
+
+        <div
+            class="analytics-card"
+            style="--icon-bg:rgba(139,92,246,.14);--icon-color:#a78bfa;--card-glow:rgba(139,92,246,.13)"
+        >
+            <div class="analytics-top">
+                <span class="analytics-label">
+                    Total Registered Accounts
+                </span>
+                <span class="analytics-icon">♙</span>
+            </div>
+
+            <div class="amount purple">
+                {{ analytics.registered_total }}
+            </div>
+        </div>
+
+        <div
+            class="analytics-card"
+            style="--icon-bg:rgba(74,222,128,.12);--icon-color:#4ade80;--card-glow:rgba(74,222,128,.1)"
+        >
+            <div class="analytics-top">
+                <span class="analytics-label">
+                    Total Page Visits
+                </span>
+                <span class="analytics-icon">↗</span>
+            </div>
+
+            <div class="amount green">
+                {{ analytics.visit_total }}
+            </div>
+        </div>
+
+        <div
+            class="analytics-card"
+            style="--icon-bg:rgba(96,165,250,.12);--icon-color:#60a5fa;--card-glow:rgba(96,165,250,.1)"
+        >
+            <div class="analytics-top">
+                <span class="analytics-label">
+                    Assistant Admin Accounts
+                </span>
+                <span class="analytics-icon">♙</span>
+            </div>
+
+            <div class="amount blue">
+                {{ assistants|length }}
+            </div>
+        </div>
+
+    </section>
+
+    <!-- REGISTERED ACCOUNTS BY ROLE -->
+    <section class="card">
+
+        <div class="card-heading">
+            <h2>Registered Accounts by Role</h2>
+
+            <p>
+                Overview of registered users according to their assigned roles.
+            </p>
+        </div>
+
+        <div class="registration-layout">
+
+            <!-- DOUGHNUT CHART -->
+            <div class="registration-chart">
+                <canvas id="registrationChart"></canvas>
+
+                <div class="chart-center">
+                    <strong>{{ analytics.registered_total }}</strong>
+                    <span>Total Accounts</span>
+                </div>
+            </div>
+
+            <!-- ROLE SUMMARY -->
+            <div class="role-summary" id="roleSummary">
+                <!-- Generated by JavaScript -->
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PAGE VISITS -->
+    <section class="card">
+
+        <div class="card-heading">
+            <h2>Page Visits</h2>
+
+            <p>
+                Activity overview for the last seven days.
+                Counts page requests, not unique visitors.
+            </p>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="visitChart"></canvas>
+        </div>
+
+    </section>
+
+    <!-- CREATE ACCOUNT -->
+    <section class="card">
+
+        <div class="card-heading">
+            <h2>Create New Account</h2>
+
+            <p>
+                As Head Admin, you can create Head Admin, Assistant Admin,
+                Finance Officer, and Member accounts.
+            </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('create_admin_user') }}">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        minlength="3"
+                        maxlength="50"
+                        placeholder="Enter username"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        minlength="8"
+                        placeholder="At least 8 characters"
+                        required
+                    >
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="role">Account Role</label>
+
+                    <select id="role" name="role" required>
+                        <option value="head_admin">Head Admin</option>
+                        <option value="assistant_admin">Assistant Admin</option>
+                        <option value="finance_officer">Finance Officer</option>
+                        <option value="member">Member</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <button type="submit" class="primary-button">
+                + &nbsp; Create Account
+            </button>
+
+        </form>
+
+    </section>
+
+    <!-- ASSISTANT ADMIN MANAGEMENT -->
+    <section class="card">
+
+        <div class="card-heading">
+            <h2>Assistant Admin Management</h2>
+
+            <p>
+                Deactivate an active Assistant Admin account.
+                Deactivated accounts cannot log in.
+            </p>
+        </div>
+
+        <div class="table-wrap">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Account Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for assistant in assistants %}
+
+                    <tr>
+                        <td>{{ assistant.username }}</td>
+
+                        <td>
+                            {% if assistant.is_active == 1 %}
+                                <span class="status active-status">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="status inactive-status">
+                                    Deactivated
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if assistant.is_active == 1 %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'remove_assistant_admin',
+                                    user_id=assistant.id
+                                ) }}"
+                                onsubmit="return confirm(
+                                    'Are you sure you want to deactivate this Assistant Admin?'
+                                );"
+                            >
+                                <button
+                                    type="submit"
+                                    class="remove-button"
+                                >
+                                    Deactivate
+                                </button>
+                            </form>
+
+                            {% else %}
+
+                                <span class="muted">
+                                    No action available
+                                </span>
+
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="3" class="muted">
+                            No Assistant Admin accounts found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+    </section>
+
+    <!-- INTERFACE MODE -->
+    <section class="card mode-card">
+
+        <div>
+            <h2>Interface Mode</h2>
+
+            <p class="muted">
+                Current mode:
+
+                <span class="mode-label">
+                    {{ active_mode|replace('_', ' ')|title }}
+                </span>
+            </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('switch_mode') }}">
+            <button type="submit" class="mode-button">
+                Switch to Supervisor Mode →
+            </button>
+        </form>
+
+    </section>
+
+    <!-- LOGOUT -->
+    <div class="logout-section">
+
+        <form method="POST" action="{{ url_for('logout') }}">
+
+            <button
+                type="submit"
+                class="logout-button"
+                onclick="return confirm('Are you sure you want to log out?');"
+            >
+                ↪ &nbsp; Log Out
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="dashboard-footer">
+        OrgFinance Financial Management System
+        <br>
+        Head Administrator Dashboard
+    </footer>
+
+</div>
+
+<!-- CHARTS -->
+<script>
+    const registrationLabels =
+        {{ analytics.registration_labels|tojson }};
+
+    const registrationValues =
+        {{ analytics.registration_values|tojson }};
+
+    const visitLabels =
+        {{ analytics.visit_labels|tojson }};
+
+    const visitValues =
+        {{ analytics.visit_values|tojson }};
+
+    // COLORS FOR ACCOUNT ROLES
+    const roleColors = [
+        "#8b5cf6",
+        "#22c55e",
+        "#f59e0b",
+        "#3b82f6",
+        "#ef4444"
+    ];
+
+    // CALCULATE TOTAL ACCOUNTS
+    const registrationTotal = registrationValues.reduce(
+        (total, value) => total + Number(value),
+        0
+    );
+
+    // GENERATE ROLE SUMMARY
+    const roleSummary = document.getElementById("roleSummary");
+
+    if (registrationLabels.length === 0) {
+
+        roleSummary.innerHTML = `
+            <div class="role-empty">
+                No registered accounts found.
+            </div>
+        `;
+
+    } else {
+
+        roleSummary.innerHTML = registrationLabels.map((role, index) => {
+
+            const count = Number(registrationValues[index] || 0);
+
+            const percentage = registrationTotal > 0
+                ? ((count / registrationTotal) * 100).toFixed(1)
+                : "0.0";
+
+            const safeRole = role.replaceAll("_", " ");
+
+            return `
+                <div class="role-item">
+
+                    <div class="role-top">
+                        <span
+                            class="role-dot"
+                            style="background:${roleColors[index % roleColors.length]}"
+                        ></span>
+
+                        <span class="role-name">${safeRole}</span>
+                    </div>
+
+                    <div class="role-count">${count}</div>
+
+                    <div class="role-percentage">
+                        ${percentage}% of registered accounts
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+
+    }
+
+    // REGISTERED ACCOUNTS DOUGHNUT CHART
+    new Chart(document.getElementById("registrationChart"), {
+
+        type: "doughnut",
+
+        data: {
+            labels: registrationLabels,
+
+            datasets: [{
+                data: registrationValues,
+
+                backgroundColor: registrationLabels.map(
+                    (_, index) => roleColors[index % roleColors.length]
+                ),
+
+                borderColor: "#151f32",
+                borderWidth: 4,
+                hoverOffset: 8
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "73%",
+
+            plugins: {
+                legend: {
+                    display: false
+                },
+
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+
+                            const value = Number(context.raw || 0);
+
+                            const percentage = registrationTotal > 0
+                                ? ((value / registrationTotal) * 100).toFixed(1)
+                                : "0.0";
+
+                            return ` ${context.label}: ${value} accounts (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+
+    });
+
+    // PAGE VISITS BAR CHART
+    new Chart(document.getElementById("visitChart"), {
+
+        type: "bar",
+
+        data: {
+            labels: visitLabels,
+
+            datasets: [{
+                label: "Page Visits",
+                data: visitValues,
+                backgroundColor: "rgba(139, 92, 246, 0.8)",
+                hoverBackgroundColor: "#a78bfa",
+                borderRadius: 7,
+                maxBarThickness: 48
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            scales: {
+
+                x: {
+                    ticks: {
+                        color: "#94a3b8"
+                    },
+
+                    grid: {
+                        display: false
+                    },
+
+                    border: {
+                        display: false
+                    }
+                },
+
+                y: {
+                    beginAtZero: true,
+
+                    ticks: {
+                        color: "#94a3b8",
+                        precision: 0
+                    },
+
+                    grid: {
+                        color: "rgba(148, 163, 184, 0.10)"
+                    },
+
+                    border: {
+                        display: false
+                    }
+                }
+
+            },
+
+            plugins: {
+                legend: {
+                    labels: {
+                        color: "#cbd5e1",
+                        usePointStyle: true,
+                        pointStyle: "circle"
+                    }
+                }
+            }
+        }
+
+    });
+</script>
+
+</body>
+</html>

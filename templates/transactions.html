@@ -1,0 +1,482 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Transaction | OrgFinance</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(124, 58, 237, 0.13), transparent 35%),
+                #0b1120;
+            color: #e2e8f0;
+            padding: 40px 20px;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 46px;
+            height: 46px;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .brand-name {
+            font-size: 19px;
+            font-weight: 800;
+            color: #f8fafc;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-subtitle {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #c4b5fd;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: #a78bfa;
+            transform: translateX(-3px);
+        }
+
+        .form-card {
+            background: rgba(17, 24, 39, 0.92);
+            border: 1px solid #273449;
+            border-radius: 22px;
+            padding: 36px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+        }
+
+        .form-heading {
+            margin-bottom: 30px;
+        }
+
+        .heading-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(124, 58, 237, 0.16);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 14px;
+            color: #a78bfa;
+            font-size: 22px;
+            margin-bottom: 18px;
+        }
+
+        .form-heading h1 {
+            color: #f8fafc;
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            margin-bottom: 9px;
+        }
+
+        .form-heading p {
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .flash-container {
+            margin-bottom: 22px;
+        }
+
+        .flash {
+            padding: 13px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .flash.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.10);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+        }
+
+        .flash.error,
+        .flash.danger {
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.10);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+
+        .flash.warning {
+            color: #fcd34d;
+            background: rgba(245, 158, 11, 0.10);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            min-height: 48px;
+            padding: 12px 14px;
+            color: #f8fafc;
+            background: #0b1120;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            outline: none;
+            font-family: inherit;
+            font-size: 14px;
+            transition: 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+
+        .form-group input::placeholder {
+            color: #64748b;
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .form-group select option {
+            background: #111827;
+            color: #f8fafc;
+        }
+
+        .form-hint {
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .form-divider {
+            height: 1px;
+            background: #273449;
+            margin: 28px 0 24px;
+        }
+
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn {
+            min-height: 46px;
+            padding: 0 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn-cancel {
+            color: #cbd5e1;
+            background: #1e293b;
+            border: 1px solid #334155;
+        }
+
+        .btn-cancel:hover {
+            background: #334155;
+        }
+
+        .btn-save {
+            color: white;
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            border: 1px solid #8b5cf6;
+            box-shadow: 0 5px 18px rgba(124, 58, 237, 0.2);
+        }
+
+        .btn-save:hover {
+            background: linear-gradient(135deg, #6d28d9, #7c3aed);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(124, 58, 237, 0.3);
+        }
+
+        .footer-note {
+            text-align: center;
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 24px 14px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .brand-name {
+                font-size: 16px;
+            }
+
+            .form-card {
+                padding: 24px 19px;
+                border-radius: 17px;
+            }
+
+            .form-heading h1 {
+                font-size: 23px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="page-wrapper">
+
+        <!-- Header -->
+        <header class="topbar">
+            <div class="brand">
+                <img
+                    src="{{ url_for('static', filename='images/orgfinance-logo.png') }}"
+                    alt="OrgFinance Logo"
+                    class="brand-logo"
+                >
+
+                <div>
+                    <div class="brand-name">OrgFinance</div>
+                    <div class="brand-subtitle">Financial Management System</div>
+                </div>
+            </div>
+
+            <a href="{{ url_for('transaction_history') }}" class="back-link">
+                ← Transaction History
+            </a>
+        </header>
+
+        <!-- Edit Transaction Form -->
+        <section class="form-card">
+
+            <div class="form-heading">
+                <div class="heading-icon">✎</div>
+                <h1>Edit Transaction</h1>
+                <p>
+                    Update the details of this financial transaction.
+                    Make sure all information is correct before saving.
+                </p>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-container">
+                        {% for category, message in messages %}
+                            <p class="flash {{ category }}">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form
+                action="{{ url_for('edit_transaction', transaction_id=transaction[0]) }}"
+                method="POST"
+            >
+
+                <div class="form-grid">
+
+                    <!-- Transaction Type -->
+                    <div class="form-group">
+                        <label for="transaction_type">Transaction Type</label>
+
+                        <select id="transaction_type" name="transaction_type" required>
+                            <option value="Income"
+                                {% if transaction[1] == 'Income' %}selected{% endif %}>
+                                Income
+                            </option>
+
+                            <option value="Expense"
+                                {% if transaction[1] == 'Expense' %}selected{% endif %}>
+                                Expense
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="form-group">
+                        <label for="amount">Amount (₱)</label>
+
+                        <input
+                            type="number"
+                            id="amount"
+                            name="amount"
+                            min="0.01"
+                            step="0.01"
+                            value="{{ transaction[2] }}"
+                            placeholder="Enter amount"
+                            required
+                        >
+
+                        <span class="form-hint">Enter an amount with up to 2 decimal places.</span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group full-width">
+                        <label for="description">Description</label>
+
+                        <input
+                            type="text"
+                            id="description"
+                            name="description"
+                            maxlength="200"
+                            value="{{ transaction[3] }}"
+                            placeholder="Enter transaction description"
+                            required
+                        >
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label for="category">Category</label>
+
+                        <input
+                            type="text"
+                            id="category"
+                            name="category"
+                            maxlength="100"
+                            value="{{ transaction[4] }}"
+                            placeholder="e.g. Food, Transportation"
+                            required
+                        >
+                    </div>
+
+                    <!-- Date -->
+                    <div class="form-group">
+                        <label for="transaction_date">Transaction Date</label>
+
+                        <input
+                            type="date"
+                            id="transaction_date"
+                            name="transaction_date"
+                            value="{{ transaction[5] }}"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <div class="form-divider"></div>
+
+                <!-- Actions -->
+                <div class="form-actions">
+                    <a
+                        href="{{ url_for('transaction_history') }}"
+                        class="btn btn-cancel"
+                    >
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn btn-save">
+                        ✓ Save Changes
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+        <footer class="footer-note">
+            OrgFinance Financial Management System
+        </footer>
+
+    </main>
+
+</body>
+</html>

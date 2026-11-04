@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrgFinance | Admin Dashboard</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .admin-section {
+            margin-top: 24px;
+        }
+
+        .admin-form {
+            display: grid;
+            gap: 12px;
+            max-width: 500px;
+        }
+
+        .admin-form input,
+        .admin-form select,
+        .admin-form button {
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .chart-card {
+            min-width: 0;
+            padding: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+
+        .account-list {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        .account-list th,
+        .account-list td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+
+        .danger-button {
+            background: #b91c1c;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .account-list {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<main class="container">
+
+    <header class="header">
+        <h1>OrgFinance Admin</h1>
+        <p>Administration and Organization Analytics</p>
+
+        <p>
+            Signed in as <strong>{{ session.get("username") }}</strong>
+            <br>
+            Role: <strong>{{ role.replace("_", " ").title() }}</strong>
+        </p>
+
+        <form method="POST" action="{{ url_for('switch_mode') }}">
+            <button type="submit">
+                Switch to
+                {{ "Supervisor Mode" if active_mode == "admin" else "Admin Mode" }}
+            </button>
+        </form>
+
+        <p>
+            <a href="{{ url_for('home') }}">Financial Dashboard</a>
+            |
+            <a href="{{ url_for('transaction_history') }}">
+                Transaction History
+            </a>
+        </p>
+
+        <form method="POST" action="{{ url_for('logout') }}">
+            <button type="submit">Log Out</button>
+        </form>
+    </header>
+
+    <section class="admin-section">
+        <h2>Registration Statistics</h2>
+
+        <div class="chart-grid">
+            <article class="card chart-card">
+                <h3>Registered Accounts by Role</h3>
+                <div class="chart-container">
+                    <canvas id="registrationChart"></canvas>
+                </div>
+            </article>
+
+            <article class="card chart-card">
+                <h3>Daily Dashboard Visits — Last 7 Days</h3>
+                <div class="chart-container">
+                    <canvas id="visitorChart"></canvas>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="admin-section card">
+        <h2>Create Admin Account</h2>
+
+        <form class="admin-form"
+              method="POST"
+              action="{{ url_for('create_admin_account') }}">
+
+            <label for="username">Username</label>
+            <input id="username"
+                   name="username"
+                   type="text"
+                   maxlength="50"
+                   required>
+
+            <label for="password">Temporary Password</label>
+            <input id="password"
+                   name="password"
+                   type="password"
+                   minlength="12"
+                   required>
+
+            <label for="role">Account Role</label>
+            <select id="role" name="role" required>
+                {% if role == "head_admin" %}
+                    <option value="head_admin">Head Admin</option>
+                {% endif %}
+                <option value="assistant_admin">Assistant Admin</option>
+            </select>
+
+            <button type="submit">Create Account</button>
+        </form>
+    </section>
+
+    <section class="admin-section card">
+        <h2>Assistant Admin Accounts</h2>
+
+        {% if assistant_admins %}
+            <div style="overflow-x: auto;">
+                <table class="account-list">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Status</th>
+                            {% if role == "head_admin" %}
+                                <th>Action</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for account in assistant_admins %}
+                            <tr>
+                                <td>{{ account["username"] }}</td>
+                                <td>
+                                    {{ "Active" if account["is_active"] else "Inactive" }}
+                                </td>
+
+                                {% if role == "head_admin" %}
+                                    <td>
+                                        {% if account["is_active"] %}
+                                            <form method="POST"
+                                                  action="{{ url_for('remove_assistant_admin', user_id=account['id']) }}"
+                                                  onsubmit="return confirm('Deactivate this Assistant Admin account?');">
+                                                <button class="danger-button"
+                                                        type="submit">
+                                                    Remove
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            Deactivated
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No Assistant Admin accounts have been created yet.</p>
+        {% endif %}
+    </section>
+
+</main>
+
+<script>
+    const registrationLabels = {{ registration_labels | tojson }};
+    const registrationCounts = {{ registration_counts | tojson }};
+    const visitLabels = {{ visit_labels | tojson }};
+    const visitCounts = {{ visit_counts | tojson }};
+
+    new Chart(document.getElementById("registrationChart"), {
+        type: "pie",
+        data: {
+            labels: registrationLabels,
+            datasets: [{
+                label: "Registered Accounts",
+                data: registrationCounts
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    new Chart(document.getElementById("visitorChart"), {
+        type: "line",
+        data: {
+            labels: visitLabels,
+            datasets: [{
+                label: "Dashboard Visits",
+                data: visitCounts,
+                tension: 0.3,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,361 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Task | TaskTrack</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(124, 58, 237, 0.15), transparent 35%),
+                #0b1120;
+            color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+        }
+
+        .page-container {
+            width: 100%;
+            max-width: 650px;
+        }
+
+        /* Brand */
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .brand-icon {
+            width: 46px;
+            height: 46px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            border-radius: 13px;
+            color: white;
+            font-size: 23px;
+            font-weight: 800;
+            box-shadow: 0 5px 18px rgba(124, 58, 237, 0.25);
+        }
+
+        .brand-name {
+            color: #f8fafc;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-subtitle {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        /* Form Card */
+
+        .form-card {
+            background: rgba(17, 24, 39, 0.95);
+            border: 1px solid #273449;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-heading {
+            margin-bottom: 30px;
+        }
+
+        .heading-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(124, 58, 237, 0.15);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 14px;
+            color: #a78bfa;
+            font-size: 23px;
+            margin-bottom: 18px;
+        }
+
+        .form-heading h1 {
+            color: #f8fafc;
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            margin-bottom: 9px;
+        }
+
+        .form-heading p {
+            color: #94a3b8;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* Form Fields */
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            margin-bottom: 23px;
+        }
+
+        .form-group label {
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 15px;
+            color: #f8fafc;
+            background: #0b1120;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            outline: none;
+            font-family: inherit;
+            font-size: 13px;
+            transition: 0.2s ease;
+        }
+
+        .form-group input {
+            min-height: 49px;
+        }
+
+        .form-group textarea {
+            min-height: 130px;
+            resize: vertical;
+            line-height: 1.7;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #64748b;
+        }
+
+        .field-hint {
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        /* Divider */
+
+        .divider {
+            height: 1px;
+            background: #273449;
+            margin: 28px 0 23px;
+        }
+
+        /* Buttons */
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            min-height: 45px;
+            padding: 0 19px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn-cancel {
+            color: #cbd5e1;
+            background: #1e293b;
+            border: 1px solid #334155;
+        }
+
+        .btn-cancel:hover {
+            background: #334155;
+        }
+
+        .btn-save {
+            color: white;
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            border: 1px solid #8b5cf6;
+            box-shadow: 0 5px 15px rgba(124, 58, 237, 0.2);
+        }
+
+        .btn-save:hover {
+            background: linear-gradient(135deg, #6d28d9, #7c3aed);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        /* Footer */
+
+        .footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 24px;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 550px) {
+            body {
+                padding: 18px;
+                align-items: flex-start;
+            }
+
+            .page-container {
+                margin-top: 25px;
+            }
+
+            .form-card {
+                padding: 25px 20px;
+                border-radius: 16px;
+            }
+
+            .form-heading h1 {
+                font-size: 23px;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="page-container">
+
+        <!-- Brand Header -->
+        <header class="brand">
+            <div class="brand-icon">T</div>
+
+            <div>
+                <div class="brand-name">TaskTrack</div>
+                <div class="brand-subtitle">Task Management System</div>
+            </div>
+        </header>
+
+        <!-- Edit Task Card -->
+        <section class="form-card">
+
+            <div class="form-heading">
+                <div class="heading-icon">✎</div>
+
+                <h1>Edit Task</h1>
+
+                <p>
+                    Update your task information and keep your
+                    work organized. Review your changes before saving.
+                </p>
+            </div>
+
+            <form method="POST">
+
+                <!-- Task Title -->
+                <div class="form-group">
+                    <label for="title">Task Title</label>
+
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        value="{{ task.title }}"
+                        maxlength="200"
+                        placeholder="Enter your task title"
+                        required
+                    >
+
+                    <span class="field-hint">
+                        Give your task a clear and meaningful title.
+                    </span>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="description">Description</label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        maxlength="1000"
+                        rows="4"
+                        placeholder="Describe what needs to be done..."
+                    >{{ task.description }}</textarea>
+
+                    <span class="field-hint">
+                        Add details to help you remember what needs to be completed.
+                    </span>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+
+                    <a href="{{ url_for('home') }}" class="btn btn-cancel">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn btn-save">
+                        ✓ Save Changes
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+        <footer class="footer">
+            TaskTrack — Stay organized. Get things done.
+        </footer>
+
+    </main>
+
+</body>
+</html>

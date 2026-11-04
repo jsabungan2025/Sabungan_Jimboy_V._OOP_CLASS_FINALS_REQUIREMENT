@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit {{ kind|title }} | OrgFinance</title>
+    <style>
+        body { background:#0f172a; color:#e2e8f0; font-family:Arial,sans-serif; padding:24px; }
+        form { max-width:560px; margin:auto; background:#1e293b; padding:24px; border-radius:12px; }
+        input, textarea, select, button {
+            box-sizing:border-box; width:100%; padding:12px; margin:8px 0;
+            border-radius:7px; border:1px solid #475569; font:inherit;
+        }
+        input, textarea, select { background:#0f172a; color:#fff; }
+        button { background:#7c3aed; color:white; border:0; cursor:pointer; }
+        a { color:#c4b5fd; }
+    </style>
+</head>
+<body>
+<form method="POST">
+    <h1>Edit {{ kind|title }}</h1>
+
+    {% if kind == "budget" %}
+        <label>Budget Name</label>
+        <input name="name" value="{{ item.name }}" maxlength="150" required>
+
+        <label>Planned Amount (₱)</label>
+        <input name="planned_amount" type="number" min="0.01" step="0.01"
+               value="{{ item.planned_amount }}" required>
+
+        <label>Description</label>
+        <textarea name="description" maxlength="500">{{ item.description or '' }}</textarea>
+    {% else %}
+        <label>Budget</label>
+        <select name="budget_id" required>
+            {% for budget in budgets %}
+            <option value="{{ budget.id }}"
+                {% if budget.id == item.budget_id %}selected{% endif %}>
+                {{ budget.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>Description</label>
+        <input name="description" value="{{ item.description }}"
+               maxlength="200" required>
+
+        <label>Amount (₱)</label>
+        <input name="amount" type="number" min="0.01" step="0.01"
+               value="{{ item.amount }}" required>
+
+        <label>Expense Date</label>
+        <input name="expense_date" type="date"
+               value="{{ item.expense_date }}" required>
+
+        <label>Payment Status</label>
+        <select name="payment_status">
+            <option value="Unpaid"
+                {% if item.payment_status == 'Unpaid' %}selected{% endif %}>
+                Unpaid
+            </option>
+            <option value="Paid"
+                {% if item.payment_status == 'Paid' %}selected{% endif %}>
+                Paid
+            </option>
+        </select>
+    {% endif %}
+
+    <button type="submit">Save Changes</button>
+    <p><a href="{{ url_for('finance_officer_dashboard') }}">Cancel</a></p>
+</form>
+</body>
+</html>

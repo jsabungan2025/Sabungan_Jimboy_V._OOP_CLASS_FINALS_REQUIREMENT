@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrgFinance | Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+</head>
+
+<body class="main-dashboard">
+
+    <main class="dashboard-container">
+
+        <!-- TOP NAVIGATION -->
+        <header class="dashboard-header">
+
+            <div class="dashboard-brand">
+
+                <!-- ORGFINANCE LOGO -->
+                <img
+                    src="{{ url_for('static', filename='images/orgfinance-logo.png') }}"
+                    alt="OrgFinance Logo"
+                    class="dashboard-logo"
+                >
+
+                <div>
+                    <h1>OrgFinance</h1>
+                    <p>Financial Management System</p>
+                </div>
+
+            </div>
+
+            <!-- ACCOUNT INFORMATION -->
+            <div class="header-account">
+
+                {% if session.get("username") %}
+                    <div class="account-details">
+                        <span class="account-label">SIGNED IN AS</span>
+
+                        <strong>
+                            {{ session.get("username") }}
+                        </strong>
+
+                        {% if role %}
+                            <span class="role-label">
+                                {{ role.replace("_", " ").title() }}
+                            </span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- LOG OUT -->
+                <form method="POST" action="{{ url_for('logout') }}">
+                    <button type="submit" class="logout-button">
+                        <span>↗</span> Log Out
+                    </button>
+                </form>
+
+            </div>
+
+        </header>
+
+        <!-- WELCOME SECTION -->
+        <section class="welcome-section">
+
+            <div>
+                <span class="section-eyebrow">
+                    ORGANIZATION FINANCE
+                </span>
+
+                <h2>Dashboard Overview</h2>
+
+                <p>
+                    Monitor your organization's income, expenses,
+                    and available funds in one place.
+                </p>
+            </div>
+
+            <!-- ADMIN / SUPERVISOR MODE SWITCH -->
+            {% if role in ["head_admin", "assistant_admin", "supervisor"] %}
+
+                <div class="mode-card">
+
+                    <div class="mode-indicator"></div>
+
+                    <div class="mode-info">
+                        <span>Current Access Mode</span>
+
+                        <strong>
+                            {{ active_mode.replace("_", " ").title() }}
+                        </strong>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('switch_mode') }}">
+                        <button type="submit" class="mode-button">
+                            Switch to
+                            {{ "Supervisor Mode" if active_mode == "admin" else "Admin Mode" }}
+                        </button>
+                    </form>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+        <!-- FINANCIAL SUMMARY -->
+        <section class="financial-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <h3>Financial Summary</h3>
+                    <p>Your organization's current financial overview</p>
+                </div>
+
+                <span class="live-indicator">
+                    ● Overview
+                </span>
+
+            </div>
+
+            <div class="financial-grid">
+
+                <!-- TOTAL INCOME -->
+                <article class="financial-card income-card">
+
+                    <div class="financial-card-top">
+                        <div class="financial-icon income-icon">↗</div>
+                        <span class="financial-label">TOTAL INCOME</span>
+                    </div>
+
+                    <h2>₱{{ income }}</h2>
+
+                    <p>All recorded incoming funds</p>
+
+                </article>
+
+                <!-- TOTAL EXPENSES -->
+                <article class="financial-card expense-card">
+
+                    <div class="financial-card-top">
+                        <div class="financial-icon expense-icon">↘</div>
+                        <span class="financial-label">TOTAL EXPENSES</span>
+                    </div>
+
+                    <h2>₱{{ expenses }}</h2>
+
+                    <p>All recorded outgoing funds</p>
+
+                </article>
+
+                <!-- AVAILABLE CASH -->
+                <article class="financial-card cash-card">
+
+                    <div class="financial-card-top">
+                        <div class="financial-icon cash-icon">₱</div>
+                        <span class="financial-label">AVAILABLE CASH</span>
+                    </div>
+
+                    <h2>₱{{ cash }}</h2>
+
+                    <p>Remaining organizational funds</p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <!-- QUICK ACTIONS -->
+        <section class="actions-section">
+
+            <div class="section-heading">
+                <div>
+                    <h3>Quick Actions</h3>
+                    <p>Access your financial management tools</p>
+                </div>
+            </div>
+
+            <div class="actions-grid">
+
+                <!-- FINANCE OFFICER ONLY -->
+                {% if role == "finance_officer" %}
+
+                    <a href="{{ url_for('add_transaction') }}"
+                       class="action-card add-action">
+
+                        <div class="action-icon">＋</div>
+
+                        <div class="action-content">
+                            <h4>Add Income or Expense</h4>
+                            <p>Record a new financial transaction.</p>
+                        </div>
+
+                        <span class="action-arrow">→</span>
+
+                    </a>
+
+                {% endif %}
+
+                <!-- TRANSACTION HISTORY -->
+                <a href="{{ url_for('transaction_history') }}"
+                   class="action-card">
+
+                    <div class="action-icon history-icon">▤</div>
+
+                    <div class="action-content">
+                        <h4>Transaction History</h4>
+                        <p>Review previously recorded transactions.</p>
+                    </div>
+
+                    <span class="action-arrow">→</span>
+
+                </a>
+
+                <!-- AUTHORIZED ROLES ONLY -->
+                {% if role in ["head_admin", "assistant_admin", "supervisor"] %}
+
+                    <a href="{{ url_for('audit_log') }}"
+                       class="action-card">
+
+                        <div class="action-icon audit-icon">◷</div>
+
+                        <div class="action-content">
+                            <h4>Financial Audit Log</h4>
+                            <p>Review financial activities and changes.</p>
+                        </div>
+
+                        <span class="action-arrow">→</span>
+
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="dashboard-footer">
+
+            <p>
+                © OrgFinance | Academic Organization Finance Management
+            </p>
+
+            <span>Secure Financial Management</span>
+
+        </footer>
+
+    </main>
+
+</body>
+</html>

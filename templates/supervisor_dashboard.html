@@ -1,0 +1,1193 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>OrgFinance | Supervisor Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg: #0b1120;
+            --panel: #111827;
+            --panel-light: #172033;
+            --panel-hover: #1c2940;
+            --line: #293449;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --purple: #8b5cf6;
+            --purple-light: #c4b5fd;
+            --green: #22c55e;
+            --red: #ef4444;
+            --blue: #60a5fa;
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Inter", Arial, sans-serif;
+        }
+
+        button, input {
+            font: inherit;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1450px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        /* HEADER */
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding-bottom: 25px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+            width: 54px;
+            height: 54px;
+            object-fit: contain;
+            border-radius: 13px;
+            background: var(--panel-light);
+            padding: 5px;
+        }
+
+        .brand-name {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-subtitle {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .mode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 13px;
+            border: 1px solid rgba(167, 139, 250, 0.25);
+            border-radius: 30px;
+            background: rgba(124, 58, 237, 0.13);
+            color: var(--purple-light);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .mode-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--purple-light);
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 40px;
+            padding: 10px 15px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--panel-light);
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.15);
+        }
+
+        .button.primary {
+            background: var(--purple);
+            border-color: var(--purple);
+            color: white;
+        }
+
+        .button.danger {
+            background: rgba(127, 29, 29, 0.25);
+            border-color: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .button.danger:hover {
+            background: #991b1b;
+            color: white;
+        }
+
+        form.inline {
+            display: inline;
+        }
+
+        /* PAGE HEADING */
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .eyebrow {
+            margin-bottom: 9px;
+            color: var(--purple-light);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+        }
+
+        .page-heading h1 {
+            font-size: clamp(25px, 3vw, 33px);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .page-heading p {
+            max-width: 600px;
+            margin-top: 9px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* NOTIFICATIONS */
+
+        .notice {
+            padding: 13px 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--panel);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .notice.success {
+            border-color: #166534;
+            background: rgba(20, 83, 45, 0.25);
+            color: #86efac;
+        }
+
+        .notice.error {
+            border-color: #991b1b;
+            background: rgba(127, 29, 29, 0.25);
+            color: #fca5a5;
+        }
+
+        /* SUMMARY CARDS */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 23px;
+        }
+
+        .metric-card {
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+            padding: 23px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--panel);
+            transition: 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            border-color: #64748b;
+        }
+
+        .metric-card::after {
+            content: "";
+            position: absolute;
+            right: -35px;
+            bottom: -55px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.10;
+            pointer-events: none;
+        }
+
+        .metric-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .metric-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .metric-icon {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background: var(--icon-bg);
+            color: var(--accent);
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .metric-value {
+            margin-top: 20px;
+            color: var(--accent);
+            font-size: clamp(23px, 2.5vw, 31px);
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            overflow-wrap: anywhere;
+        }
+
+        .metric-note {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .income-card {
+            --accent: #4ade80;
+            --icon-bg: rgba(34, 197, 94, 0.13);
+        }
+
+        .expense-card {
+            --accent: #f87171;
+            --icon-bg: rgba(239, 68, 68, 0.13);
+        }
+
+        .cash-card {
+            --accent: #a78bfa;
+            --icon-bg: rgba(124, 58, 237, 0.16);
+        }
+
+        /* CONTENT LAYOUT */
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.5fr);
+            gap: 20px;
+            margin-bottom: 22px;
+            align-items: start;
+        }
+
+        .card {
+            min-width: 0;
+            padding: 24px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--panel);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
+        }
+
+        .section-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section-head h2 {
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .section-head p {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .section-tag {
+            flex-shrink: 0;
+            padding: 7px 10px;
+            border-radius: 8px;
+            background: rgba(124, 58, 237, 0.13);
+            color: var(--purple-light);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /* CHART */
+
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            height: 280px;
+            margin: 0 auto;
+        }
+
+        .chart-caption {
+            margin-top: 15px;
+            padding: 12px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--panel-light);
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.7;
+        }
+
+        /* TABLE */
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            padding: 14px 13px;
+            background: #172338;
+            color: var(--purple-light);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 13px;
+            border-top: 1px solid var(--line);
+            color: #cbd5e1;
+            font-size: 11px;
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(148, 163, 184, 0.05);
+        }
+
+        .table-id {
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .table-primary {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .amount {
+            color: var(--text);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .type-badge {
+            display: inline-flex;
+            padding: 6px 9px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .type-income {
+            background: rgba(34, 197, 94, 0.13);
+            color: #4ade80;
+        }
+
+        .type-expense {
+            background: rgba(239, 68, 68, 0.13);
+            color: #f87171;
+        }
+
+        .empty {
+            padding: 30px 15px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        /* AUDIT HISTORY */
+
+        .audit-section {
+            margin-top: 22px;
+        }
+
+        .audit-grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .audit-item {
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #0d1526;
+            transition: border-color 0.2s ease;
+        }
+
+        .audit-item:hover {
+            border-color: #475569;
+        }
+
+        .audit-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .audit-title {
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .audit-meta {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .user-tag {
+            display: inline-block;
+            margin-left: 5px;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: rgba(124, 58, 237, 0.16);
+            color: var(--purple-light);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .audit-date {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .change-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 13px;
+        }
+
+        .change-box {
+            min-width: 0;
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--panel-light);
+        }
+
+        .change-box h3 {
+            margin-bottom: 10px;
+            color: var(--muted);
+            font-size: 10px;
+            letter-spacing: 0.8px;
+        }
+
+        .change-box p {
+            margin: 7px 0;
+            color: #cbd5e1;
+            font-size: 11px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .change-box strong {
+            color: var(--text);
+        }
+
+        /* FOOTER */
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 22px;
+            border-top: 1px solid var(--line);
+        }
+
+        .footer-text {
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.7;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 1050px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-wrap {
+                max-width: 390px;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .container {
+                padding: 22px 16px 35px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .container {
+                padding: 17px 12px 30px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .actions {
+                width: 100%;
+            }
+
+            .actions form {
+                flex: 1;
+            }
+
+            .actions .button {
+                width: 100%;
+            }
+
+            .mode-badge {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .card {
+                padding: 17px;
+            }
+
+            .change-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .audit-date {
+                width: 100%;
+            }
+
+            .footer {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .footer .button {
+                width: 100%;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition: none !important;
+            }
+        }
+    </style>
+
+    <!-- Shared OrgFinance stylesheet.
+         Keep this AFTER the inline style so shared CSS can override it. -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body class="supervisor-page">
+
+<div class="container">
+
+    <!-- HEADER -->
+    <header class="topbar">
+
+        <div class="brand">
+            <img
+                class="brand-logo"
+                src="{{ url_for('static', filename='images/orgfinance-logo.png') }}"
+                alt="OrgFinance Logo"
+            >
+
+            <div>
+                <div class="brand-name">OrgFinance</div>
+                <div class="brand-subtitle">Financial Management System</div>
+            </div>
+        </div>
+
+        <div class="actions">
+
+            <span class="mode-badge">
+                <span class="mode-dot"></span>
+                {{ active_mode|replace('_', ' ')|title }} Mode
+            </span>
+
+            <form class="inline" action="{{ url_for('switch_mode') }}" method="post">
+                <button class="button primary" type="submit">
+                    ⇄ Switch Mode
+                </button>
+            </form>
+
+            <form class="inline" action="{{ url_for('logout') }}" method="post">
+                <button class="button" type="submit">
+                    Log Out
+                </button>
+            </form>
+
+        </div>
+
+    </header>
+
+
+    <!-- PAGE HEADING -->
+    <section class="page-heading">
+
+        <div>
+            <div class="eyebrow">Management and Monitoring</div>
+
+            <h1>Supervisor Dashboard</h1>
+
+            <p>
+                Welcome, {{ session.get('username', 'Supervisor') }}.
+                Monitor organizational finances, review transactions,
+                and inspect the complete transaction change history.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="notice {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+
+    <!-- FINANCIAL SUMMARY -->
+    <section class="summary-grid">
+
+        <article class="metric-card income-card">
+
+            <div class="metric-top">
+                <div class="metric-label">Recorded Income</div>
+                <div class="metric-icon">↗</div>
+            </div>
+
+            <div class="metric-value">₱{{ income }}</div>
+
+            <div class="metric-note">
+                Total income recorded in the database.
+            </div>
+
+        </article>
+
+
+        <article class="metric-card expense-card">
+
+            <div class="metric-top">
+                <div class="metric-label">Total Expenses</div>
+                <div class="metric-icon">↘</div>
+            </div>
+
+            <div class="metric-value">₱{{ expenses }}</div>
+
+            <div class="metric-note">
+                Total recorded expense transactions.
+            </div>
+
+        </article>
+
+
+        <article class="metric-card cash-card">
+
+            <div class="metric-top">
+                <div class="metric-label">Funds Remaining</div>
+                <div class="metric-icon">₱</div>
+            </div>
+
+            <div class="metric-value">₱{{ cash }}</div>
+
+            <div class="metric-note">
+                Income minus expenses. Negative means overspending.
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- CHART AND TRANSACTIONS -->
+    <section class="content-grid">
+
+        <!-- FUNDS CHART -->
+        <article class="card">
+
+            <div class="section-head">
+
+                <div>
+                    <h2>Funds Overview</h2>
+                    <p>Income allocation and remaining funds.</p>
+                </div>
+
+                <span class="section-tag">Analytics</span>
+
+            </div>
+
+            <div class="chart-wrap">
+                <canvas
+                    id="budgetChart"
+                    aria-label="Chart showing expenses and remaining funds"
+                    role="img"
+                ></canvas>
+            </div>
+
+            <div class="chart-caption">
+                The chart compares recorded expenses with remaining funds.
+                It uses recorded income as the available-funds baseline.
+                If you want to use planned budget allocations instead,
+                the chart must be connected to the budget records.
+            </div>
+
+        </article>
+
+
+        <!-- TRANSACTION TABLE -->
+        <article class="card">
+
+            <div class="section-head">
+
+                <div>
+                    <h2>All Transactions</h2>
+                    <p>
+                        Review financial records and remove a selected
+                        transaction. Deletions are recorded in the audit log.
+                    </p>
+                </div>
+
+                <span class="section-tag">Records</span>
+
+            </div>
+
+            {% if transactions %}
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for item in transactions|reverse %}
+
+                                <tr>
+
+                                    <td class="table-id">
+                                        #{{ item[0] }}
+                                    </td>
+
+                                    <td>
+                                        {% if item[1] == 'Income' %}
+                                            <span class="type-badge type-income">
+                                                Income
+                                            </span>
+                                        {% else %}
+                                            <span class="type-badge type-expense">
+                                                Expense
+                                            </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="table-primary">
+                                        {{ item[3] }}
+                                    </td>
+
+                                    <td>
+                                        {{ item[4] }}
+                                    </td>
+
+                                    <td class="amount">
+                                        ₱{{ "%.2f"|format(item[2]|float) }}
+                                    </td>
+
+                                    <td>
+                                        {{ item[5] }}
+                                    </td>
+
+                                    <td>
+                                        <form
+                                            action="{{ url_for('delete_transaction', transaction_id=item[0]) }}"
+                                            method="post"
+                                            onsubmit="return confirm('Delete this transaction permanently? Its deletion will be recorded in the audit log.');"
+                                        >
+                                            <button
+                                                class="button danger"
+                                                type="submit"
+                                            >
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty">
+                    No transactions have been recorded yet.
+                </div>
+
+            {% endif %}
+
+        </article>
+
+    </section>
+
+
+    <!-- AUDIT HISTORY -->
+    <section class="card audit-section">
+
+        <div class="section-head">
+
+            <div>
+                <h2>Complete Before-and-After Edit History</h2>
+
+                <p>
+                    Review recorded transaction edits and deletions,
+                    including the user responsible and the values before
+                    and after each change.
+                </p>
+            </div>
+
+            <span class="section-tag">Audit Trail</span>
+
+        </div>
+
+
+        {% if audit_entries %}
+
+            <div class="audit-grid">
+
+                {% for entry in audit_entries %}
+
+                    <article class="audit-item">
+
+                        <div class="audit-top">
+
+                            <div>
+
+                                <div class="audit-title">
+                                    {{ entry.action }}
+                                    · Transaction #{{ entry.transaction_id }}
+                                </div>
+
+                                <div class="audit-meta">
+                                    Changed by:
+                                    <span class="user-tag">
+                                        {{ entry.changed_by_username }}
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <span class="audit-date">
+                                {{ entry.changed_at }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="change-grid">
+
+                            <!-- BEFORE -->
+                            <div class="change-box">
+
+                                <h3>BEFORE</h3>
+
+                                {% if entry.old_values %}
+
+                                    {% for key, value in entry.old_values.items() %}
+
+                                        <p>
+                                            <strong>
+                                                {{ key|replace('_', ' ')|title }}:
+                                            </strong>
+                                            {{ value }}
+                                        </p>
+
+                                    {% endfor %}
+
+                                {% else %}
+
+                                    <p>No previous values recorded.</p>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- AFTER -->
+                            <div class="change-box">
+
+                                <h3>AFTER</h3>
+
+                                {% if entry.new_values %}
+
+                                    {% for key, value in entry.new_values.items() %}
+
+                                        <p>
+                                            <strong>
+                                                {{ key|replace('_', ' ')|title }}:
+                                            </strong>
+                                            {{ value }}
+                                        </p>
+
+                                    {% endfor %}
+
+                                {% else %}
+
+                                    <p>No new values recorded.</p>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty">
+                No edit or delete history is available yet.
+                Changes made after audit logging was enabled will appear here.
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- FOOTER -->
+    <footer class="footer">
+
+        <div class="footer-text">
+            © 2026 OrgFinance.<br>
+            Financial management made simple.
+        </div>
+
+        <div class="footer-text">
+            Supervisor Access · Financial Monitoring
+        </div>
+
+    </footer>
+
+</div>
+
+
+<!-- CHART.JS -->
+<script>
+    // Values supplied by the Flask route.
+    const used = Number({{ chart_used|tojson }}) || 0;
+    const remaining = Number({{ chart_remaining|tojson }}) || 0;
+
+    // Doughnut charts cannot display negative segments.
+    // The actual cash balance remains visible in the summary card.
+    const usedAmount = Math.max(used, 0);
+    const remainingAmount = Math.max(remaining, 0);
+
+    const hasChartData = usedAmount > 0 || remainingAmount > 0;
+    const chartCanvas = document.getElementById("budgetChart");
+
+    if (chartCanvas && typeof Chart !== "undefined") {
+
+        new Chart(chartCanvas, {
+            type: "doughnut",
+
+            data: {
+                labels: [
+                    "Expenses / Used",
+                    "Funds Remaining"
+                ],
+
+                datasets: [{
+                    data: hasChartData
+                        ? [usedAmount, remainingAmount]
+                        : [0, 0],
+
+                    backgroundColor: [
+                        "#f87171",
+                        "#a78bfa"
+                    ],
+
+                    borderColor: "#111827",
+                    borderWidth: 5,
+                    hoverOffset: 8,
+                    borderRadius: 5
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "70%",
+
+                plugins: {
+                    legend: {
+                        position: "bottom",
+
+                        labels: {
+                            color: "#e2e8f0",
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: "circle",
+
+                            font: {
+                                family: "Inter",
+                                size: 11
+                            }
+                        }
+                    },
+
+                    tooltip: {
+                        enabled: hasChartData,
+                        backgroundColor: "#111827",
+                        titleColor: "#f8fafc",
+                        bodyColor: "#e2e8f0",
+                        borderColor: "#475569",
+                        borderWidth: 1,
+                        padding: 12,
+
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ": ₱" +
+                                    Number(context.raw).toLocaleString("en-PH", {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    });
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+    }
+</script>
+
+</body>
+</html>

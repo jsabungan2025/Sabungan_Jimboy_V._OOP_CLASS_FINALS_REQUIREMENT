@@ -1,0 +1,599 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrgFinance | Transaction History</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: #e2e8f0;
+            background:
+                radial-gradient(circle at top left, rgba(124, 58, 237, 0.12), transparent 35%),
+                #0b1120;
+        }
+
+        .history-container {
+            width: min(1250px, 94%);
+            margin: 35px auto;
+        }
+
+        /* Header */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .brand-name {
+            color: #f8fafc;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-subtitle {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Page Heading */
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            color: #f8fafc;
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 9px;
+        }
+
+        .page-heading p {
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Buttons */
+
+        .button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+            padding: 11px 16px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .primary {
+            color: white;
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            border-color: #8b5cf6;
+            box-shadow: 0 5px 15px rgba(124, 58, 237, 0.2);
+        }
+
+        .primary:hover {
+            background: linear-gradient(135deg, #6d28d9, #7c3aed);
+        }
+
+        .secondary {
+            color: #cbd5e1;
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .secondary:hover {
+            background: #334155;
+        }
+
+        .edit {
+            color: #93c5fd;
+            background: rgba(37, 99, 235, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .edit:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+
+        .delete {
+            color: #fca5a5;
+            background: rgba(185, 28, 28, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .delete:hover {
+            color: white;
+            background: #b91c1c;
+        }
+
+        /* Flash Messages */
+
+        .flash-container {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 13px 16px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+        }
+
+        .flash.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.10);
+            border-color: rgba(34, 197, 94, 0.25);
+        }
+
+        .flash.error,
+        .flash.danger {
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.10);
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
+        .flash.warning {
+            color: #fcd34d;
+            background: rgba(245, 158, 11, 0.10);
+            border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        /* History Panel */
+
+        .panel {
+            overflow: hidden;
+            background: rgba(17, 24, 39, 0.94);
+            border: 1px solid #273449;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 22px 24px;
+            border-bottom: 1px solid #273449;
+        }
+
+        .panel-header h2 {
+            color: #f8fafc;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .panel-header p {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 16px 18px;
+            color: #a78bfa;
+            background: rgba(30, 41, 59, 0.55);
+            font-size: 11px;
+            font-weight: 700;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 17px 18px;
+            color: #cbd5e1;
+            font-size: 13px;
+            border-bottom: 1px solid #273449;
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(124, 58, 237, 0.06);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .transaction-number {
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .type-income {
+            color: #4ade80;
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .type-expense {
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .amount {
+            color: #f8fafc;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .description {
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .category {
+            display: inline-block;
+            padding: 5px 9px;
+            color: #c4b5fd;
+            background: rgba(124, 58, 237, 0.12);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 7px;
+            font-size: 11px;
+        }
+
+        .date {
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .actions form {
+            margin: 0;
+        }
+
+        .actions .button {
+            padding: 8px 12px;
+            font-size: 11px;
+        }
+
+        /* Empty State */
+
+        .empty {
+            padding: 55px 20px !important;
+            text-align: center;
+        }
+
+        .empty-icon {
+            display: block;
+            font-size: 35px;
+            margin-bottom: 12px;
+        }
+
+        .empty h3 {
+            color: #e2e8f0;
+            font-size: 15px;
+            margin-bottom: 7px;
+        }
+
+        .empty p {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        /* Footer */
+
+        .footer-note {
+            color: #64748b;
+            font-size: 11px;
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 650px) {
+            .history-container {
+                width: 94%;
+                margin: 22px auto;
+            }
+
+            .topbar {
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions .button {
+                flex: 1;
+            }
+
+            .page-heading h1 {
+                font-size: 25px;
+            }
+
+            .panel-header {
+                padding: 18px;
+            }
+
+            th,
+            td {
+                padding: 13px 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="history-container">
+
+        <!-- Brand Header -->
+        <header class="topbar">
+
+            <div class="brand">
+                <img
+                    src="{{ url_for('static', filename='images/orgfinance-logo.png') }}"
+                    alt="OrgFinance Logo"
+                    class="brand-logo"
+                >
+
+                <div>
+                    <div class="brand-name">OrgFinance</div>
+                    <div class="brand-subtitle">Financial Management System</div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <a class="button secondary" href="{{ url_for('home') }}">
+                    ← Dashboard
+                </a>
+
+                {% if session.get('role') in ['finance_officer', 'head_admin', 'assistant_admin'] %}
+                    <a class="button primary" href="{{ url_for('add_transaction') }}">
+                        + Add Transaction
+                    </a>
+                {% endif %}
+            </div>
+
+        </header>
+
+        <!-- Page Heading -->
+        <section class="page-heading">
+            <h1>Transaction History</h1>
+            <p>
+                Review and monitor all recorded income and expenses
+                of your organization.
+            </p>
+        </section>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}" role="status">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Transaction Table -->
+        <section class="panel">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Financial Records</h2>
+                    <p>Transaction records and their details</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Date</th>
+
+                            {% if session.get('role') in ['finance_officer', 'supervisor'] %}
+                                <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for transaction in transactions %}
+
+                        <tr>
+                            <td class="transaction-number">
+                                {{ loop.index }}
+                            </td>
+
+                            <td>
+                                {% if transaction[1] == 'Income' %}
+                                    <span class="type-badge type-income">
+                                        ↑ Income
+                                    </span>
+                                {% else %}
+                                    <span class="type-badge type-expense">
+                                        ↓ Expense
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="amount">
+                                ₱{{ '%.2f'|format(transaction[2]|float) }}
+                            </td>
+
+                            <td class="description">
+                                {{ transaction[3] }}
+                            </td>
+
+                            <td>
+                                <span class="category">
+                                    {{ transaction[4] }}
+                                </span>
+                            </td>
+
+                            <td class="date">
+                                {{ transaction[5] }}
+                            </td>
+
+                            {% if session.get('role') in ['finance_officer', 'supervisor'] %}
+                            <td>
+                                <div class="actions">
+
+                                    {% if session.get('role') == 'finance_officer' %}
+                                        <a
+                                            class="button edit"
+                                            href="{{ url_for('edit_transaction', transaction_id=transaction[0]) }}"
+                                        >
+                                            ✎ Edit
+                                        </a>
+                                    {% endif %}
+
+                                    {% if session.get('role') == 'supervisor' %}
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('delete_transaction', transaction_id=transaction[0]) }}"
+                                            onsubmit="return confirm('Delete this transaction? This action cannot be undone.');"
+                                        >
+                                            <button class="button delete" type="submit">
+                                                ✕ Delete
+                                            </button>
+                                        </form>
+                                    {% endif %}
+
+                                </div>
+                            </td>
+                            {% endif %}
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td
+                                class="empty"
+                                colspan="{{ 7 if session.get('role') in ['finance_officer', 'supervisor'] else 6 }}"
+                            >
+                                <span class="empty-icon">📋</span>
+                                <h3>No Transactions Found</h3>
+                                <p>
+                                    No transactions have been recorded yet.
+                                </p>
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </div>
+        </section>
+
+        <footer class="footer-note">
+            OrgFinance Financial Management System
+        </footer>
+
+    </main>
+
+</body>
+</html>
